@@ -1,12 +1,21 @@
 package com.example.agent;
 
-import org.springframework.kafka.core.KafkaTemplate;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import org.apache.kafka.common.KafkaException;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/webhooks")
@@ -21,14 +30,33 @@ public class WebhookController {
     }
 
     @PostMapping("/github")
-    public ResponseEntity<String> receiveWebhook(@RequestBody ReviewRequest request) {
+    public ResponseEntity<String> receiveWebhook(@RequestBody(required = false) ReviewRequest request) {
+        if (request == null || request.repository() == null || request.repository().isBlank()
+                || request.pullRequestId() == null || request.pullRequestId().isBlank()
+                || request.patchDiff() == null || request.patchDiff().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body("Invalid webhook payload. Expected JSON with repository, pullRequestId, and patchDiff.");
+        }
+
         try {
-            kafkaTemplate.send(TOPIC, request.pullRequestId(), request);
+            kafkaTemplate.send(TOPIC, request.pullRequestId(), request).get(5, TimeUnit.SECONDS);
             return ResponseEntity.accepted().body("Webhook event queued for processing.");
-        } catch (KafkaException exception) {
-            log.warn("Failed to queue webhook for pull request {}", request.pullRequestId(), exception);
+        } catch (KafkaException | ExecutionException | TimeoutException e) {
+            log.warn("Failed to queue webhook for pull request {}", request.pullRequestId(), e);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("Kafka is unavailable; webhook was not queued.");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted while queuing webhook for pull request {}", request.pullRequestId(), e);
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Kafka queueing was interrupted; webhook was not queued.");
         }
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleMalformedJson(HttpMessageNotReadableException exception) {
+        log.warn("Malformed webhook payload received", exception);
+        return ResponseEntity.badRequest()
+                .body("Invalid JSON payload. Ensure repository, pullRequestId, and patchDiff are valid strings.");
     }
 }
