@@ -10,7 +10,6 @@
         <relativePath/>
     </parent>
     
-    <!-- Force Maven metadata naming schemas to match your repository directory name exactly -->
     <groupId>com.example</groupId>
     <artifactId>autonomous-code-review-ai-agent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -22,7 +21,7 @@
     </properties>
 
     <dependencies>
-        <!-- Spring Boot Starters -->
+        <!-- Spring Boot Starter Packages -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -32,14 +31,21 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
 
-        <!-- Pure LangChain4j Base Core Core Libraries -->
+        <!-- CRUCIAL FIX: Force download of LangChain4j Core Services Engine -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-core</artifactId>
+            <version>${langchain4j.version}</version>
+        </dependency>
+
+        <!-- Standalone LangChain4j Declarative Service Framework -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
             <version>${langchain4j.version}</version>
         </dependency>
 
-        <!-- LangChain4j OpenAI Spring Configuration Models -->
+        <!-- LangChain4j OpenAI Cloud Spring Integration -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
@@ -56,4 +62,3 @@
         </plugins>
     </build>
 </project>
-
