@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AgentApplication {
+public class AutonomousCodeReviewAiAgentApplication {
     public static void main(String[] args) {
-        SpringApplication.run(AgentApplication.class, args);
+        SpringApplication.run(AutonomousCodeReviewAiAgentApplication.class, args);
     }
 }
