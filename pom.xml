@@ -9,10 +9,12 @@
         <version>3.4.0</version>
         <relativePath/>
     </parent>
+    
+    <!-- Force Maven metadata naming schemas to match your repository directory name exactly -->
     <groupId>com.example</groupId>
-    <artifactId>git-compliance-agent</artifactId>
+    <artifactId>autonomous-code-review-ai-agent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>git-compliance-agent</name>
+    <name>autonomous-code-review-ai-agent</name>
 
     <properties>
         <java.version>21</java.version>
@@ -20,7 +22,7 @@
     </properties>
 
     <dependencies>
-        <!-- Spring Boot Web & Kafka Starter Packs -->
+        <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -30,14 +32,14 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
 
-        <!-- Core LangChain4j Interfaces -->
+        <!-- Pure LangChain4j Base Core Core Libraries -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
             <version>${langchain4j.version}</version>
         </dependency>
 
-        <!-- Enterprise LangChain4j OpenAI Spring Boot Integration -->
+        <!-- LangChain4j OpenAI Spring Configuration Models -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
@@ -54,3 +56,4 @@
         </plugins>
     </build>
 </project>
+
